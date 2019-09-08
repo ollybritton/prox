@@ -30,8 +30,8 @@ type ComplexPool struct {
 	Unused *providers.Set
 
 	CacheAvaliable bool
-	CachedAll      *providers.Set
-	CachedUnused   *providers.Set
+	CacheAll       *providers.Set
+	CacheUnused    *providers.Set
 }
 
 // SizeAll finds the amount of proxies that are currently loaded, used or unused.
@@ -89,8 +89,8 @@ func (pool *ComplexPool) Fetch() error {
 	logger.Debugf("prox (%p): fetched %d proxies", pool, len(collector.All()))
 	logger.Debugf("prox (%p): updating cache with new proxies", pool)
 	pool.CacheAvaliable = true
-	pool.CachedAll = pool.All
-	pool.CachedUnused = pool.Unused
+	pool.CacheAll = pool.All
+	pool.CacheUnused = pool.Unused
 
 	return nil
 }
@@ -142,8 +142,8 @@ func (pool *ComplexPool) ApplyCache() error {
 		return fmt.Errorf("prox (%p): no cache to revert back to", pool)
 	}
 
-	pool.All = pool.CachedAll
-	pool.Unused = pool.CachedUnused
+	pool.All = pool.CacheAll
+	pool.Unused = pool.CacheUnused
 
 	pool.CacheAvaliable = false
 
@@ -265,6 +265,9 @@ func NewComplexPool(opts ...Option) *ComplexPool {
 		Unused:  providers.NewSet(),
 		timeout: 15 * time.Second,
 	}
+
+	// Default config options
+	pool.Config.FallbackToBackupProviders = true
 
 	logger.Infof("prox: created new complex pool with id %p", pool)
 

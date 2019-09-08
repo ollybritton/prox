@@ -9,10 +9,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TestSimplePoolStatic tests that after a set of proxies have been loaded, the amount of
+// TestSimplePoolIsStatic tests that after a set of proxies have been loaded, the amount of
 // proxies won't increase in the background. This is because it would mess up things like
 // filtering.
-func TestSimplePoolStatic(t *testing.T) {
+func TestSimplePoolIsStatic(t *testing.T) {
 	logger := logrus.New()
 	logger.SetLevel(logrus.InfoLevel)
 
@@ -33,8 +33,8 @@ func TestSimplePoolStatic(t *testing.T) {
 	}
 }
 
-// TestSimplePoolFilters tests that equivialent filters yield equivalent results.
-func TestSimplePoolFilters(t *testing.T) {
+// TestSimplePoolEquivialentFilters tests that equivialent filters yield equivalent results.
+func TestSimplePoolEquivialentFilters(t *testing.T) {
 	logger := logrus.New()
 	logger.SetLevel(logrus.InfoLevel)
 
@@ -42,7 +42,9 @@ func TestSimplePoolFilters(t *testing.T) {
 	pool2 := prox.NewSimplePool("FreeProxyLists")
 
 	t.Log("Loading proxy pool...")
-	pool1.Load()
+	err := pool1.Load()
+	assert.Nil(t, err)
+
 	t.Logf("Proxies found: %d", pool1.SizeAll())
 
 	t.Log("Copying proxies from 1st pool to 2nd pool")
