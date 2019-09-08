@@ -9,8 +9,11 @@ Prox is a simple Go package for locating open proxy servers. It works by congreg
       - [Simple Pool](#simple-pool)
       - [Complex Pool](#complex-pool)
     - [Low Level (Providers & Sets)](#low-level-providers--sets)
+      - [The `providers.Proxy` type](#the-providersproxy-type)
+      - [The `providers.Set` type](#the-providersset-type)
+      - [The `providers.Provider` type](#the-providersprovider-type)
   - [Bugs](#bugs)
-          - [Legal](#legal)
+  - [Legal](#legal)
 
 ## Setup
 Assuming you have a proper go install, you can just run
@@ -139,7 +142,74 @@ err := pool.ApplyCache() // Use the previously avaliable cache. It will error if
 ```
 
 ### Low Level (Providers & Sets)
+A lower level interface to the proxy providers is also avaliable, avaliable through the `providers/` package. In reality, the `Pool` implementation wraps the providers package to provide the additional functionality.
 
+#### The `providers.Proxy` type
+The `providers.Proxy` type is basically identical to the `prox.Proxy` type. The only reason the `prox.Proxy` type exists is to provide additional functionality to the lower level implementation (like the `.Client()` method) and prevent circular imports. 
+
+It has the following fields:
+
+```go
+type Proxy struct {
+    URL      *url.URL `json:"url"`
+    Provider string   `json:"providers"`
+    Country  string   `json:"country"`
+
+    Used bool
+}
+```
+
+#### The `providers.Set` type
+The `providers.Set` type is a concurrency-safe set implementation which can store proxies. It means that proxies can be stored asynchronously and not cause race conditions.
+
+```go
+set := providers.NewSet()
+
+set.Add(p providers.Proxy) // Add a proxy to the set
+set.All() // Get all the proxies in the set as a slice
+set.In(p providers.Proxy) // Check if a proxy is the set
+set.Length() // Get the length of the set
+set.Remove(p providers.Proxy) // Remove a proxy from the set
+```
+
+#### The `providers.Provider` type
+This is the definition of a provider. It has the following type signature:
+
+```go
+type Provider func(*providers.Set, timeout time.Duration) ([]providers.Proxy, error)
+```
+
+Simply put, it is a function which takes a [set](#the-providersset-type) and a timeout and returns a list of proxies and an error if one occurs.
+
+For example, the implementation of `FreeProxyLists` is:
+
+```go
+func FreeProxyLists(proxies *providers.Set, timeout time.Duration) ([]providers.Proxy, error) {
+    // do stuff like proxies.Add()
+    return proxies.All(), nil
+}
+```
+
+The reason it is implemented this way is so that the list of proxies can be accessed as the function runs.
+
+```go
+set := providers.NewSet()
+go FreeProxyLists(set, 10 * time.Seconds)
+
+for {
+    println(set.Length())
+    time.Sleep(1 * time.Second)
+}
+
+// Output:
+// 0
+// 0
+// 0
+// 231
+// 873
+// 2563
+// ...
+```
 
 ## Bugs
 * HTTPS proxies
@@ -149,5 +219,5 @@ err := pool.ApplyCache() // Use the previously avaliable cache. It will error if
 
   The consequence of this is that all HTTPS proxies are marked as unaccessible when filtering.
   
-###### Legal
+## Legal
 This product includes GeoLite2 data created by MaxMind, available from [https://www.maxmind.com](https://www.maxmind.com).
