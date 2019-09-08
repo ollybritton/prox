@@ -22,7 +22,7 @@ func main() {
     pool := prox.NewPool(prox.UseProvider("https://freeproxylists.com"))
 
     pool := prox.NewPool(
-        prox.UseProviders("https://freeproxylists.com", "https://proxyscrape.com", "static"1)
+        prox.UseProviders("https://freeproxylists.com", "https://proxyscrape.com", "static")
     )
 }
 ```
