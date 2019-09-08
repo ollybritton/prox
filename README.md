@@ -220,7 +220,10 @@ for {
   The consequence of this is that all HTTPS proxies are marked as unaccessible when filtering.
 
   For a quick fix:
+  
+  ```
   pool.Filter(prox.FilterProxyTypes("HTTP", "SOCKS4", "SOCKS5"))
+  ```
   
 ## Legal
 > This product includes GeoLite2 data created by MaxMind, available from [https://www.maxmind.com](https://www.maxmind.com).
