@@ -212,12 +212,15 @@ for {
 ```
 
 ## Bugs
-* HTTPS proxies
-  Creating HTTP_S_ clients doesn't work, always either 
+* HTTP**S** proxies
+  Creating HTTP**S** clients doesn't work, always either 
   * `net/http: request canceled while waiting for connection (Client.Timeout exceeded while awaiting headers)`, or
   * `proxyconnect tcp: tls: first record does not look like a TLS handshake`
 
   The consequence of this is that all HTTPS proxies are marked as unaccessible when filtering.
+
+  For a quick fix:
+  pool.Filter(prox.FilterProxyTypes("HTTP", "SOCKS4", "SOCKS5"))
   
 ## Legal
-This product includes GeoLite2 data created by MaxMind, available from [https://www.maxmind.com](https://www.maxmind.com).
+> This product includes GeoLite2 data created by MaxMind, available from [https://www.maxmind.com](https://www.maxmind.com).
