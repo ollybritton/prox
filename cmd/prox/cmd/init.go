@@ -1,22 +1,14 @@
-/*
-Copyright © 2019 NAME HERE <EMAIL ADDRESS>
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
 package cmd
 
 import (
 	"fmt"
+	"os"
+	"path"
+
+	"github.com/ollybritton/prox/tools"
+	"github.com/sirupsen/logrus"
+
+	"github.com/mitchellh/go-homedir"
 
 	"github.com/spf13/cobra"
 )
@@ -24,28 +16,45 @@ import (
 // initCmd represents the init command
 var initCmd = &cobra.Command{
 	Use:   "init",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Short: "download the MaxMind GeoLite2 database for IP country filtering",
+	Long:  `initialise the tool by setting up the `,
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("init called")
+		dbfolder, err := cmd.Flags().GetString("path")
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		homedir, err := homedir.Dir()
+		if err != nil {
+			fmt.Println("could not locate home directory:")
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		if dbfolder == "" {
+			folder := path.Join(homedir, ".config", "prox")
+			err = os.MkdirAll(folder, os.ModePerm)
+
+			if err != nil {
+				fmt.Println("could not make db folder", folder)
+				fmt.Println(err)
+				os.Exit(1)
+			}
+
+			dbfolder = folder
+		}
+
+		err = tools.SetupDatabase(logrus.New(), homedir, dbfolder)
+		if err != nil {
+			fmt.Println("\nDB installation failed.")
+			os.Exit(1)
+		}
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(initCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// initCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// initCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	initCmd.Flags().String("path", "", "Where to download the database to. Defaults to $HOME/.config/prox/geo.mmdb")
 }
