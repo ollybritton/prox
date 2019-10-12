@@ -18,15 +18,20 @@ import (
 )
 
 var logger *logrus.Logger
-var countryInfo *countryDB
+var countryInfo = &countryDB{initialised: false}
 
 // countryDB wraps a geoip2.Reader to make looking up country information easier.
 type countryDB struct {
-	db    *geoip2.Reader
-	query *gountries.Query
+	db          *geoip2.Reader
+	query       *gountries.Query
+	initialised bool
 }
 
 func (cdb *countryDB) FindCountryByIP(ip string) (string, error) {
+	if !cdb.initialised {
+		panic("providers: cannot access country db, exiting")
+	}
+
 	parsedIP := net.ParseIP(ip)
 	if parsedIP == nil {
 		return "", fmt.Errorf("providers: malformed ip address '%v'", ip)
@@ -41,6 +46,10 @@ func (cdb *countryDB) FindCountryByIP(ip string) (string, error) {
 }
 
 func (cdb *countryDB) FindCountryByName(name string) (string, error) {
+	if !cdb.initialised {
+		panic("providers: cannot access country db, exiting")
+	}
+
 	// edge cases, sometimes a provider provides a string like "Viet Nam" which
 	// can't be found, so they are manually added here.
 	edge := map[string]string{
@@ -105,9 +114,10 @@ func init() {
 	} else {
 		home, err := homedir.Dir()
 		if err != nil {
-			panic(
+			l.Error(
 				errors.Wrap(err, "providers: cannot access geoip database, no access to the home directory"),
 			)
+			return
 		}
 
 		dbloc = path.Join(home, ".config", "prox", "geo.mmdb")
@@ -115,9 +125,10 @@ func init() {
 
 	internal, err := geoip2.Open(dbloc)
 	if err != nil {
-		panic(errors.Wrap(err, "providers: cannot access geoip database"))
+		l.Error(errors.Wrap(err, "providers: cannot access geoip database"))
+		return
 	}
 
-	countryInfo = &countryDB{db: internal, query: gountries.New()}
+	countryInfo = &countryDB{db: internal, query: gountries.New(), initialised: true}
 
 }
