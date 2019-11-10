@@ -235,13 +235,14 @@ for {
   * `net/http: request canceled while waiting for connection (Client.Timeout exceeded while awaiting headers)`, or
   * `proxyconnect tcp: tls: first record does not look like a TLS handshake`
 
-  The consequence of this is that all HTTPS proxies are marked as unaccessible when filtering.
-
-  For a quick fix:
+  The consequence of this is that all HTTPS proxies are marked as unaccessible when filtering. To remove all HTTPS proxies so that you don't run into this problem
   
-  ```
+  ```go
   pool.Filter(prox.FilterProxyTypes("HTTP", "SOCKS4", "SOCKS5"))
   ```
+
+* Data races
+  You get some warnings when you run `go test -race`
   
 ## Legal
 > This product includes GeoLite2 data created by MaxMind, available from [https://www.maxmind.com](https://www.maxmind.com).
