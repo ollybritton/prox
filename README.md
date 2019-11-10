@@ -231,6 +231,7 @@ for {
 
 ## Bugs
 * HTTPS proxies
+  
   Creating HTTPS clients doesn't work, always either 
   * `net/http: request canceled while waiting for connection (Client.Timeout exceeded while awaiting headers)`, or
   * `proxyconnect tcp: tls: first record does not look like a TLS handshake`
@@ -242,6 +243,7 @@ for {
   ```
 
 * Data races
+  
   You get some warnings when you run `go test -race`
   
 ## Legal
