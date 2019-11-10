@@ -1,3 +1,5 @@
+//go:generate go-bindata -pkg $GOPACKAGE data/
+
 package providers
 
 import (
