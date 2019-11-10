@@ -1,6 +1,9 @@
 # Prox
 Prox is a simple Go package for locating open proxy servers. It works by congregating proxies from several different providers on the internet and allows access to them using a simple API. It is the successor to my previous package, [proxyfinder](https://github.com/ollybritton/proxyfinder).
 
+[![GoDoc](https://godoc.org/github.com/ollybritton/prox?status.svg)](https://godoc.org/github.com/ollybritton/prox)
+[![Go Report Card](https://goreportcard.com/badge/github.com/ollybritton/prox)](https://goreportcard.com/report/github.com/ollybritton/prox)
+
 - [Prox](#prox)
   - [Setup](#setup)
   - [Command-Line Tool](#command-line-tool)
@@ -55,7 +58,7 @@ The library provides a high level interface (`Pools`) and a lower level interfac
 A **Provider** is just a source of proxies. It can be a website or a static list stored somewhere on the machine. The following providers are available.
 
 | Name             | Source                                                          |
-| ---------------- | --------------------------------------------------------------- |
+|------------------|-----------------------------------------------------------------|
 | `FreeProxyLists` | [http://freeproxylists.com/](http://freeproxylists.com/)        |
 | `ProxyScrape`    | [https://proxyscrape.com/](https://proxyscrape.com/)`           |
 | `Static`         | Stored in `providers/data/proxies`, accessed using `go-bindata` |
