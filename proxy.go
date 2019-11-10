@@ -5,10 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"strings"
 	"time"
 
-	"github.com/imroc/req"
 	"github.com/ollybritton/prox/providers"
 	"github.com/pkg/errors"
 	"golang.org/x/net/proxy"
@@ -151,8 +149,6 @@ func (p *Proxy) AsSOCKS5Client() (*http.Client, error) {
 // CheckSpeed checks that a connection to proxy can be formed. It accepts a
 // timeout, and will mark a proxy as unavaliable if it doesn't respond within that time.
 func (p *Proxy) CheckSpeed(timeout time.Duration) bool {
-	r := req.New()
-
 	client, err := p.Client()
 	if err != nil {
 		return false
@@ -162,20 +158,21 @@ func (p *Proxy) CheckSpeed(timeout time.Duration) bool {
 	client.Timeout = timeout
 	defer func() { client.Timeout = prev }()
 
-	r.SetClient(client)
-
-	_, err = r.Get("https://example.org")
+	resp, err := client.Get("http://gstatic.com/generate_204")
 	if err != nil {
+		return false
+	}
+
+	if resp.StatusCode != 204 {
 		return false
 	}
 
 	return true
 }
 
-// CheckConnection checks that a connection to a proxy can be formed. It is agnostic to timeouts.
+// CheckConnection checks that a connection to a proxy can be formed. It will still mark a proxy as successful even if
+// it times out. If you want to filter proxies that timeout, use CheckSpeed(10 * time.Second), which is equivalent.
 func (p *Proxy) CheckConnection() bool {
-	r := req.New()
-
 	client, err := p.Client()
 	if err != nil {
 		return false
@@ -185,16 +182,16 @@ func (p *Proxy) CheckConnection() bool {
 	client.Timeout = 10 * time.Second
 	defer func() { client.Timeout = prev }()
 
-	r.SetClient(client)
-
-	_, err = r.Get("https://example.org")
+	resp, err := client.Get("http://gstatic.com/generate_204")
 	if err != nil {
-
-		// This is bad
-		if strings.Contains(err.Error(), "Client.Timeout") {
+		if err == http.ErrHandlerTimeout {
 			return true
 		}
 
+		return false
+	}
+
+	if resp.StatusCode != 204 {
 		return false
 	}
 
