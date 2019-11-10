@@ -52,7 +52,7 @@ $ prox help <command name>
 The library provides a high level interface (`Pools`) and a lower level interface `Providers` to the proxy providers. For most uses, the higher-level `Pool` implementation is better.
 
 ### Key Terms
-A **Provider** is just a source of proxies. It can be a website or a static list stored somewhere on the machine. The following providers are avaliable.
+A **Provider** is just a source of proxies. It can be a website or a static list stored somewhere on the machine. The following providers are available.
 
 | Name             | Source                                                          |
 | ---------------- | --------------------------------------------------------------- |
@@ -77,7 +77,7 @@ if err := pool.Load(); err != nil {
 }
 ```
 
-By default, loading the proxies will take a maximum of about 15 seconds. Most of the time, it is much faster than this. The following methods are then avaliable:
+By default, loading the proxies will take a maximum of about 15 seconds. Most of the time, it is much faster than this. The following methods are then available:
 ```go
 proxy, err := pool.New() // Fetch a new, unused proxy. Will error if there are no unused proxies left.
 proxy, err := pool.Random() // Fetch a random proxy, used or unused. It will still be marked as used so you won't be able to access this proxy with pool.New()
@@ -136,7 +136,7 @@ pool := prox.NewPool(
 )
 ```
 
-The following methods are then avaliable for the `ComplexPool`
+The following methods are then available for the `ComplexPool`
 
 ```go
 err := pool.Load() // Load the proxies.
@@ -153,11 +153,11 @@ pool.SetTimeout(10 * time.Second) // Set a timeout for fetching the proxies.
 pool.SizeAll() // Size of all proxies.
 pool.SizeUnused() // Size of unused proxies.
 
-err := pool.ApplyCache() // Use the previously avaliable cache. It will error if there is not a cache avaliable.
+err := pool.ApplyCache() // Use the previously available cache. It will error if there is not a cache available.
 ```
 
 ### Low Level (Providers & Sets)
-A lower level interface to the proxy providers is also avaliable, avaliable through the `providers/` package. In reality, the `Pool` implementation wraps the providers package to provide the additional functionality.
+A lower level interface to the proxy providers is also available, available through the `providers/` package. In reality, the `Pool` implementation wraps the providers package to provide the additional functionality.
 
 #### The `providers.Proxy` type
 The `providers.Proxy` type is basically identical to the `prox.Proxy` type. The only reason the `prox.Proxy` type exists is to provide additional functionality to the lower level implementation (like the `.Client()` method) and prevent circular imports. 

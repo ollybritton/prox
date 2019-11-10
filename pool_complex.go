@@ -29,7 +29,7 @@ type ComplexPool struct {
 	All    *providers.Set
 	Unused *providers.Set
 
-	CacheAvaliable bool
+	CacheAvailable bool
 	CacheAll       *providers.Set
 	CacheUnused    *providers.Set
 }
@@ -88,7 +88,7 @@ func (pool *ComplexPool) Fetch() error {
 
 	logger.Debugf("prox (%p): fetched %d proxies", pool, len(collector.All()))
 	logger.Debugf("prox (%p): updating cache with new proxies", pool)
-	pool.CacheAvaliable = true
+	pool.CacheAvailable = true
 	pool.CacheAll = pool.All
 	pool.CacheUnused = pool.Unused
 
@@ -138,14 +138,14 @@ func (pool *ComplexPool) FetchFallback() error {
 
 // ApplyCache will revert the pool to the previous cache.
 func (pool *ComplexPool) ApplyCache() error {
-	if !pool.CacheAvaliable {
+	if !pool.CacheAvailable {
 		return fmt.Errorf("prox (%p): no cache to revert back to", pool)
 	}
 
 	pool.All = pool.CacheAll
 	pool.Unused = pool.CacheUnused
 
-	pool.CacheAvaliable = false
+	pool.CacheAvailable = false
 
 	return nil
 }
@@ -162,7 +162,7 @@ func (pool *ComplexPool) Load() error {
 	}
 
 	if pool.Config.FallbackToCached {
-		logger.Errorf("prox (%p): error occured while fetching proxies: %v", pool, err)
+		logger.Errorf("prox (%p): error occurred while fetching proxies: %v", pool, err)
 
 		err := pool.ApplyCache()
 		if err == nil {
@@ -174,7 +174,7 @@ func (pool *ComplexPool) Load() error {
 	}
 
 	if pool.Config.FallbackToBackupProviders {
-		logger.Errorf("prox (%p): error occured while fetching proxies: %v", pool, err)
+		logger.Errorf("prox (%p): error occurred while fetching proxies: %v", pool, err)
 		logger.Errorf("prox (%p): falling back to fallback providers", pool)
 
 		err = pool.FetchFallback()
@@ -183,7 +183,7 @@ func (pool *ComplexPool) Load() error {
 			return nil
 		}
 
-		logger.Errorf("prox (%p): error occured while fetching fallback proxies: %v", pool, err)
+		logger.Errorf("prox (%p): error occurred while fetching fallback proxies: %v", pool, err)
 	}
 
 	return err
@@ -201,7 +201,7 @@ func (pool *ComplexPool) Random() (Proxy, error) {
 
 		err := pool.Load()
 		if err != nil {
-			return Proxy{}, fmt.Errorf("prox (%p): cannot select random proxy, error occured while reloading empty pool: %v", pool, err)
+			return Proxy{}, fmt.Errorf("prox (%p): cannot select random proxy, error occurred while reloading empty pool: %v", pool, err)
 		}
 
 		length = pool.SizeAll()
@@ -225,7 +225,7 @@ func (pool *ComplexPool) New() (Proxy, error) {
 
 		err := pool.Load()
 		if err != nil {
-			return Proxy{}, fmt.Errorf("prox (%p): cannot select unused proxy, error occured while reloading pool: %v", pool, err)
+			return Proxy{}, fmt.Errorf("prox (%p): cannot select unused proxy, error occurred while reloading pool: %v", pool, err)
 		}
 
 		length = pool.SizeUnused()
@@ -364,7 +364,7 @@ func OptionFallbackToBackupProviders(setting bool) Option {
 	}
 }
 
-// OptionAddFilters adds a list of fitlers to the pool
+// OptionAddFilters adds a list of filters to the pool
 func OptionAddFilters(filters ...Filter) Option {
 	return func(pool *ComplexPool) error {
 		pool.filters = append(pool.filters, filters...)

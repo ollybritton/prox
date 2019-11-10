@@ -4,6 +4,7 @@ go 1.13
 
 require (
 	github.com/Bogdan-D/go-socks4 v0.0.0-20160129084303-092515145880
+	github.com/client9/misspell v0.3.4 // indirect
 	github.com/dsnet/compress v0.0.1 // indirect
 	github.com/fatih/color v1.7.0
 	github.com/frankban/quicktest v1.6.0 // indirect

@@ -13,7 +13,7 @@ func testProvider(name string, provider providers.Provider) func(*testing.T) {
 		ps, err := provider(proxies, 10*time.Second)
 
 		if err != nil {
-			t.Errorf("providers (%v): error occured when scraping proxies: %v", name, err)
+			t.Errorf("providers (%v): error occurred when scraping proxies: %v", name, err)
 		} else {
 			t.Logf("providers (%v): found %d proxies", name, len(ps))
 		}

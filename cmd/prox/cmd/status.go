@@ -61,8 +61,8 @@ To see certain providers checked, run
 		data := [][]string{}
 		total := 0
 
-		avaliable := color.New(color.FgGreen, color.Bold).Sprint("Avaliable")
-		unavaliable := color.New(color.FgRed, color.Bold).Sprint("Unavaliable")
+		available := color.New(color.FgGreen, color.Bold).Sprint("Available")
+		unavailable := color.New(color.FgRed, color.Bold).Sprint("Unavailable")
 
 		shareColor := color.New(color.FgCyan)
 
@@ -74,17 +74,17 @@ To see certain providers checked, run
 				logger.Errorf("No provider named %v", providerName)
 				continue
 			} else if err != nil {
-				logger.Errorf("[%v] Unavaliable", providerName)
+				logger.Errorf("[%v] Unavailable", providerName)
 
 				data = append(data, []string{
-					providerName, unavaliable, "0", "",
+					providerName, unavailable, "0", "",
 				})
 
 				continue
 			}
 
 			data = append(data, []string{
-				providerName, avaliable, fmt.Sprint(amount), "",
+				providerName, available, fmt.Sprint(amount), "",
 			})
 
 			total += amount

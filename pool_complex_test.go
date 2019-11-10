@@ -1,6 +1,6 @@
 package prox_test
 
-// Some of these tests will only work if internet is avaliable and the providers being used
+// Some of these tests will only work if internet is available and the providers being used
 // are accesible. The status of the providers can be checked with the `prox status` command.
 
 import (
@@ -38,7 +38,7 @@ func TestComplexPoolCreation(t *testing.T) {
 	pool := prox.NewComplexPool()
 
 	assert.Equal(t, pool.SizeAll(), 0, "unloaded pool should have zero proxies")
-	assert.Equal(t, pool.CacheAvaliable, false, "cache shouldn't be avaliable for an unloaded pool")
+	assert.Equal(t, pool.CacheAvailable, false, "cache shouldn't be available for an unloaded pool")
 	assert.Equal(t, pool.Config.FallbackToBackupProviders, true)
 	assert.Equal(t, pool.Config.FallbackToCached, false)
 	assert.Equal(t, pool.Config.ReloadWhenEmpty, false)
@@ -126,14 +126,14 @@ func TestComplexPoolCache(t *testing.T) {
 		prox.UseProvider("DummyProviderEmpty"),
 	)
 
-	// Load the cache from the inital pool into the new pool.
+	// Load the cache from the initial pool into the new pool.
 	// This simulates a provider that stops working.
-	pool.CacheAvaliable = true
+	pool.CacheAvailable = true
 	pool.CacheAll = initialPool.All
 	pool.CacheUnused = initialPool.Unused
 
 	err = pool.Load()
-	assert.Nil(t, err, "no error should occur if cache is avaliable to the pool")
+	assert.Nil(t, err, "no error should occur if cache is available to the pool")
 }
 
 // TestComplexPoolAutomaticReload tests that the pool will be automatically reloaded if the proxy list is empty when
@@ -199,7 +199,7 @@ func TestComplexPoolRandom(t *testing.T) {
 	assert.NotZero(t, p, "random proxy should not be zero-valued")
 }
 
-// TestComplexPoolEquivalentFilters tests that equivalent filters yeild equivalent results.
+// TestComplexPoolEquivalentFilters tests that equivalent filters yield equivalent results.
 func TestComplexPoolEquivalentFilters(t *testing.T) {
 	logger := logrus.New()
 	logger.SetLevel(logrus.InfoLevel)

@@ -147,7 +147,7 @@ func (p *Proxy) AsSOCKS5Client() (*http.Client, error) {
 }
 
 // CheckSpeed checks that a connection to proxy can be formed. It accepts a
-// timeout, and will mark a proxy as unavaliable if it doesn't respond within that time.
+// timeout, and will mark a proxy as unavailable if it doesn't respond within that time.
 func (p *Proxy) CheckSpeed(timeout time.Duration) bool {
 	client, err := p.Client()
 	if err != nil {

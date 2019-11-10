@@ -43,7 +43,7 @@ func DownloadFile(filepath string, url string) error {
 }
 
 // SetupDatabase downloads the MaxMind GeoLite2 database and moves it to the specified directory.
-// It uses a seperate logger as it isn't involved in proxy finding.
+// It uses a separate logger as it isn't involved in proxy finding.
 func SetupDatabase(logger *logrus.Logger, homedir string, dbfolder string) error {
 	dbpath := path.Join(dbfolder, "geo.tar.gz")
 
@@ -51,24 +51,24 @@ func SetupDatabase(logger *logrus.Logger, homedir string, dbfolder string) error
 	err := DownloadFile(dbpath, "https://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.tar.gz")
 
 	if err != nil {
-		logger.Errorf("error occured during download: %v", err)
-		return errors.Wrap(err, "error occured during download")
+		logger.Errorf("error occurred during download: %v", err)
+		return errors.Wrap(err, "error occurred during download")
 	}
 
 	logger.Info("unarchiving geo.tar.gz")
 	err = archiver.Unarchive(dbpath, path.Join(dbfolder, "geo"))
 
 	if err != nil {
-		logger.Errorf("error occured while unarchiving: %v", err)
-		return errors.Wrap(err, "error occured while unarchiving")
+		logger.Errorf("error occurred while unarchiving: %v", err)
+		return errors.Wrap(err, "error occurred while unarchiving")
 	}
 
 	logger.Info("locating geo.mmdb file in unzipped download")
 
 	files, err := ioutil.ReadDir(path.Join(dbfolder, "geo"))
 	if err != nil {
-		logger.Errorf("error occured while reading files inside unzipped directory: %v", err)
-		return errors.Wrap(err, "error occured while reading files inside unzipped directory")
+		logger.Errorf("error occurred while reading files inside unzipped directory: %v", err)
+		return errors.Wrap(err, "error occurred while reading files inside unzipped directory")
 	}
 
 	found := false
