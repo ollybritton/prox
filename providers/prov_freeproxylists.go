@@ -85,7 +85,12 @@ func FreeProxyLists(proxies *Set, timeout time.Duration) ([]Proxy, error) {
 				body = strings.ReplaceAll(body, "&gt;", ">")
 
 				table := freeProxyListsResponse{}
+
 				err = xml.Unmarshal([]byte(body), &table)
+				if err != nil {
+					logger.Errorf("providers (FreeProxyLists): could not unmarshal xml response")
+					return
+				}
 
 				for _, row := range table.Quote.Table.Tr {
 					wg.Add(1)
