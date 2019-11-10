@@ -3,6 +3,7 @@ Prox is a simple Go package for locating open proxy servers. It works by congreg
 
 - [Prox](#prox)
   - [Setup](#setup)
+  - [Command-Line Tool](#command-line-tool)
   - [Usage](#usage)
     - [Key Terms](#key-terms)
     - [High Level (Pools)](#high-level-pools)
@@ -21,7 +22,7 @@ Assuming you have a proper go install, you can just run
 $ go get -u github.com/ollybritton/prox
 ```
 
-This will install the package, as well as the `prox` command line tool. You will also need the [MaxMind GeoLite2 Database](https://dev.maxmind.com/geoip/geoip2/geolite2/) installed on your system.
+This will install the package, as well as the `prox` [command line tool]((#command-line-tool)). You will also need the [MaxMind GeoLite2 Database](https://dev.maxmind.com/geoip/geoip2/geolite2/) installed on your system.
 
 You can achieve this by running
 
@@ -32,6 +33,20 @@ $ prox init
 Or, if you do not want to use the command-line tool, download the [GeoLite2-Country.tar.gz](https://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.tar.gz) file, extract the `GeoLite2-Country.mmdb` file, and point the `$PROX_GEODB` environment variable to it.
 
 The implementation of `prox init` is in `tools/database.go`
+
+## Command-Line Tool
+There are a few more useful features of the command line tool:
+
+```bash
+$ prox status # Check status of providers
+$ prox find # Print proxies to the terminal
+```
+
+For help about a specific command, just do
+
+```bash
+$ prox help <command name>
+```
 
 ## Usage
 The library provides a high level interface (`Pools`) and a lower level interface `Providers` to the proxy providers. For most uses, the higher-level `Pool` implementation is better.
@@ -114,7 +129,7 @@ pool := prox.NewPool(
 
     prox.OptionReloadWhenEmpty(true), // If there are no proxies left in the pool when .New() or .Random() are called, load the proxies again. Defaults to false.
 
-    prox.AddFilters(
+    prox.OptionAddFilters(
         // filters are identical to the ones used in SimplePool
         // These filters will be called everytime the pool is loaded, unlike SimplePool
     )
@@ -212,8 +227,8 @@ for {
 ```
 
 ## Bugs
-* HTTP**S** proxies
-  Creating HTTP**S** clients doesn't work, always either 
+* HTTPS proxies
+  Creating HTTPS clients doesn't work, always either 
   * `net/http: request canceled while waiting for connection (Client.Timeout exceeded while awaiting headers)`, or
   * `proxyconnect tcp: tls: first record does not look like a TLS handshake`
 

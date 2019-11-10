@@ -9,6 +9,7 @@ require (
 	github.com/frankban/quicktest v1.6.0 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/imroc/req v0.2.4
+	github.com/logrusorgru/aurora v0.0.0-20191017060258-dc85c304c434
 	github.com/mattn/go-colorable v0.1.4 // indirect
 	github.com/mattn/go-isatty v0.0.10 // indirect
 	github.com/mholt/archiver v3.1.1+incompatible

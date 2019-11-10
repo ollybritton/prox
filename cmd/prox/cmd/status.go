@@ -130,7 +130,10 @@ func init() {
 
 	defaultProviders := []string{}
 	for providerName := range prox.Providers {
-		defaultProviders = append(defaultProviders, providerName)
+		if providerName != "Static" {
+			defaultProviders = append(defaultProviders, providerName)
+		}
 	}
+
 	statusCmd.Flags().StringSliceP("providers", "p", defaultProviders, "Provider(s) to check for.")
 }
