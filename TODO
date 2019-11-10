@@ -1,3 +1,0 @@
-TODO Add `prox init` to the prox tool
-TODO Add `prox status` to prox tool, checks the status of the proxy providers.
-TODO Add a cached proxy provider that uses previously loaded proxies before falling back to the staic list
