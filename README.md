@@ -25,17 +25,7 @@ Assuming you have a proper go install, you can just run
 $ go get -u github.com/ollybritton/prox
 ```
 
-This will install the package, as well as the `prox` [command line tool]((#command-line-tool)). You will also need the [MaxMind GeoLite2 Database](https://dev.maxmind.com/geoip/geoip2/geolite2/) installed on your system.
-
-You can achieve this by running
-
-```bash
-$ prox init
-```
-
-Or, if you do not want to use the command-line tool, download the [GeoLite2-Country.tar.gz](https://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.tar.gz) file, extract the `GeoLite2-Country.mmdb` file, and point the `$PROX_GEODB` environment variable to it.
-
-The implementation of `prox init` is in `tools/database.go`
+This will install the package, as well as the `prox` [command line tool]((#command-line-tool)). The MaxMind GeoIP database is embedded into the binary, which means no additional setup is required.
 
 ## Command-Line Tool
 There are a few more useful features of the command line tool:
@@ -58,7 +48,7 @@ The library provides a high level interface (`Pools`) and a lower level interfac
 A **Provider** is just a source of proxies. It can be a website or a static list stored somewhere on the machine. The following providers are available.
 
 | Name             | Source                                                          |
-|------------------|-----------------------------------------------------------------|
+| ---------------- | --------------------------------------------------------------- |
 | `FreeProxyLists` | [http://freeproxylists.com/](http://freeproxylists.com/)        |
 | `ProxyScrape`    | [https://proxyscrape.com/](https://proxyscrape.com/)`           |
 | `Static`         | Stored in `providers/data/proxies`, accessed using `go-bindata` |

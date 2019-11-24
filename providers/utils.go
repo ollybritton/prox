@@ -4,12 +4,9 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"os"
-	"path"
 	"sync"
 	"time"
 
-	"github.com/mitchellh/go-homedir"
 	"github.com/oschwald/geoip2-golang"
 	"github.com/pariz/gountries"
 
@@ -100,32 +97,22 @@ func InitLog(l *logrus.Logger) {
 }
 
 // init will initialise the logger when the package is imported and
-// open the maxmind database to find country info.
+// open the maxmind database to find country info
 func init() {
 	l := logrus.New()
 	l.SetLevel(logrus.ErrorLevel)
 
 	InitLog(l)
 
-	var dbloc string
-
-	if os.Getenv("PROX_GEODB") != "" {
-		dbloc = os.Getenv("PROX_GEODB")
-	} else {
-		home, err := homedir.Dir()
-		if err != nil {
-			l.Error(
-				errors.Wrap(err, "providers: cannot access geoip database, no access to the home directory"),
-			)
-			return
-		}
-
-		dbloc = path.Join(home, ".config", "prox", "geo.mmdb")
+	bytes, err := Asset("data/geo.mmdb")
+	if err != nil {
+		l.Error(errors.Wrap(err, "providers: cannot access embedded geoip database"))
+		return
 	}
 
-	internal, err := geoip2.Open(dbloc)
+	internal, err := geoip2.FromBytes(bytes)
 	if err != nil {
-		l.Error(errors.Wrap(err, "providers: cannot access geoip database"))
+		l.Error(errors.Wrap(err, "providers: cannot access embedded geoip database"))
 		return
 	}
 

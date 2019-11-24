@@ -3,6 +3,7 @@ package providers
 import (
 	"encoding/xml"
 	"fmt"
+	"io"
 	"regexp"
 	"strconv"
 	"strings"
@@ -87,8 +88,8 @@ func FreeProxyLists(proxies *Set, timeout time.Duration) ([]Proxy, error) {
 				table := freeProxyListsResponse{}
 
 				err = xml.Unmarshal([]byte(body), &table)
-				if err != nil {
-					logger.Errorf("providers (FreeProxyLists): could not unmarshal xml response")
+				if err != nil && err != io.EOF {
+					logger.Errorf("providers (FreeProxyLists): could not unmarshal xml response: %v", err)
 					return
 				}
 
