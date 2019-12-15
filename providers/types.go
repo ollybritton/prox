@@ -35,33 +35,38 @@ func newProxy(rawip string, provider string, country string) (Proxy, error) {
 
 // Set is a utility for storing the proxies in a concurrency-safe way
 type Set struct {
-	sync.Mutex
+	m          sync.Mutex
 	membership map[string]bool
 	proxies    []Proxy
 }
 
 // Add adds a new proxy to the set.
 func (s *Set) Add(p Proxy) {
-	s.Lock()
+	s.m.Lock()
+
 	exists := s.membership[p.URL.Host]
 	if !exists {
 		s.membership[p.URL.Host] = true
 		s.proxies = append(s.proxies, p)
 	}
 
-	s.Unlock()
+	s.m.Unlock()
 }
 
 // In checks wheter a proxy is in the set.
 func (s *Set) In(p Proxy) bool {
-	return s.membership[p.URL.Host]
+	s.m.Lock()
+	m := s.membership[p.URL.Host]
+	s.m.Unlock()
+
+	return m
 }
 
 // All returns all the proxies in the set at the current moment.
 func (s *Set) All() (proxies []Proxy) {
-	s.Lock()
+	s.m.Lock()
 	proxies = s.proxies
-	s.Unlock()
+	s.m.Unlock()
 
 	return proxies
 }
@@ -69,7 +74,7 @@ func (s *Set) All() (proxies []Proxy) {
 // Remove removes a proxy from a set.
 // If the proxy doesn't exist, no change is made.
 func (s *Set) Remove(proxy Proxy) {
-	s.Lock()
+	s.m.Lock()
 
 	for i, p := range s.proxies {
 		if p.URL.String() == proxy.URL.String() {
@@ -80,14 +85,14 @@ func (s *Set) Remove(proxy Proxy) {
 	}
 
 	delete(s.membership, proxy.URL.Host)
-	s.Unlock()
+	s.m.Unlock()
 }
 
 // Length gets the amount of proxies being stores.
 func (s *Set) Length() int {
-	s.Lock()
+	s.m.Lock()
 	size := len(s.proxies)
-	s.Unlock()
+	s.m.Unlock()
 
 	return size
 }
