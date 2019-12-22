@@ -207,7 +207,7 @@ func (pool *ComplexPool) Random() (Proxy, error) {
 		length = pool.SizeAll()
 	}
 
-	rawProxy := pool.All.All()[rand.Intn(length)]
+	rawProxy := pool.All.Random()
 	pool.Unused.Remove(rawProxy)
 
 	return *CastProxy(rawProxy), nil
@@ -234,7 +234,34 @@ func (pool *ComplexPool) New() (Proxy, error) {
 		}
 	}
 
-	rawProxy := pool.Unused.All()[rand.Intn(length)]
+	rawProxy := pool.Unused.Random()
+	pool.Unused.Remove(rawProxy)
+
+	return *CastProxy(rawProxy), nil
+}
+
+// NewFromCountries gets a new, unused proxy whose location is one of the countries specified.. Depending on options,
+// it will attempt to reload the proxy pool if there are no proxies left inside the pool.
+func (pool *ComplexPool) NewFromCountries(countries []string) (Proxy, error) {
+	length := pool.SizeUnused()
+
+	if length == 0 {
+		if !pool.Config.ReloadWhenEmpty {
+			return Proxy{}, fmt.Errorf("prox (%p): cannot select proxy, no unused proxies left in pool", pool)
+		}
+
+		err := pool.Load()
+		if err != nil {
+			return Proxy{}, fmt.Errorf("prox (%p): cannot select unused proxy, error occurred while reloading pool: %v", pool, err)
+		}
+
+		length = pool.SizeUnused()
+		if length == 0 {
+			return Proxy{}, fmt.Errorf("prox (%p): cannot select proxy, no unused proxies even after reload", pool)
+		}
+	}
+
+	rawProxy := pool.Unused.FromCountries(countries)
 	pool.Unused.Remove(rawProxy)
 
 	return *CastProxy(rawProxy), nil
@@ -242,8 +269,8 @@ func (pool *ComplexPool) New() (Proxy, error) {
 
 // Filter applies the filter to the proxies inside the pool.
 func (pool *ComplexPool) Filter(filters ...Filter) {
-	all := ApplyFilters(pool.All.All(), filters)
-	unused := ApplyFilters(pool.Unused.All(), filters)
+	all := ApplyFilters(pool.All.List(), filters)
+	unused := ApplyFilters(pool.Unused.List(), filters)
 
 	pool.All = providers.NewSet()
 	pool.Unused = providers.NewSet()

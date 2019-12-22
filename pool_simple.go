@@ -2,7 +2,6 @@ package prox
 
 import (
 	"fmt"
-	"math/rand"
 	"time"
 
 	"github.com/ollybritton/prox/providers"
@@ -73,7 +72,7 @@ func (pool *SimplePool) Random() (Proxy, error) {
 		return Proxy{}, fmt.Errorf("prox (%p): cannot select random proxy, no proxies in pool", pool)
 	}
 
-	rawProxy := pool.All.All()[rand.Intn(length)]
+	rawProxy := pool.All.Random()
 	pool.Unused.Remove(rawProxy)
 
 	return *CastProxy(rawProxy), nil
@@ -87,7 +86,7 @@ func (pool *SimplePool) New() (Proxy, error) {
 		return Proxy{}, fmt.Errorf("prox (%p): no unused proxies left in pool", pool)
 	}
 
-	rawProxy := pool.Unused.All()[rand.Intn(length)]
+	rawProxy := pool.Unused.Random()
 	pool.Unused.Remove(rawProxy)
 
 	return *CastProxy(rawProxy), nil
@@ -95,8 +94,8 @@ func (pool *SimplePool) New() (Proxy, error) {
 
 // Filter applies the filter to the proxies inside the pool.
 func (pool *SimplePool) Filter(filters ...Filter) {
-	all := ApplyFilters(pool.All.All(), filters)
-	unused := ApplyFilters(pool.Unused.All(), filters)
+	all := ApplyFilters(pool.All.List(), filters)
+	unused := ApplyFilters(pool.Unused.List(), filters)
 
 	pool.All = providers.NewSet()
 	pool.Unused = providers.NewSet()

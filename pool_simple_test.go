@@ -48,7 +48,7 @@ func TestSimplePoolEquivialentFilters(t *testing.T) {
 	t.Logf("Proxies found: %d", pool1.SizeAll())
 
 	t.Log("Copying proxies from 1st pool to 2nd pool")
-	for _, p := range pool1.All.All() {
+	for p := range pool1.All.All() {
 		pool2.All.Add(p)
 	}
 

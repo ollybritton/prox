@@ -100,7 +100,7 @@ func ProxyScrape(proxies *Set, timeout time.Duration) ([]Proxy, error) {
 		break
 	}
 
-	ps := proxies.All()
+	ps := proxies.List()
 	if len(ps) == 0 {
 		return ps, fmt.Errorf("providers (ProxyScrape): no proxies could be gathered")
 	}

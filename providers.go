@@ -54,7 +54,7 @@ func MultiProvider(providerNames ...string) providers.Provider {
 
 		waitTimeout(wg, timeout)
 
-		ps := proxies.All()
+		ps := proxies.List()
 		if len(ps) == 0 {
 			return ps, fmt.Errorf("providers (%v): no proxies could be gathered", name)
 		}

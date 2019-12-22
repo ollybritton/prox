@@ -35,19 +35,17 @@ func newProxy(rawip string, provider string, country string) (Proxy, error) {
 
 // Set is a utility for storing the proxies in a concurrency-safe way
 type Set struct {
-	m          sync.Mutex
-	membership map[string]bool
-	proxies    []Proxy
+	m       sync.Mutex
+	proxies map[Proxy]bool
 }
 
 // Add adds a new proxy to the set.
 func (s *Set) Add(p Proxy) {
 	s.m.Lock()
 
-	exists := s.membership[p.URL.Host]
+	exists := s.proxies[p]
 	if !exists {
-		s.membership[p.URL.Host] = true
-		s.proxies = append(s.proxies, p)
+		s.proxies[p] = true
 	}
 
 	s.m.Unlock()
@@ -56,19 +54,32 @@ func (s *Set) Add(p Proxy) {
 // In checks wheter a proxy is in the set.
 func (s *Set) In(p Proxy) bool {
 	s.m.Lock()
-	m := s.membership[p.URL.Host]
+	m := s.proxies[p]
 	s.m.Unlock()
 
 	return m
 }
 
-// All returns all the proxies in the set at the current moment.
-func (s *Set) All() (proxies []Proxy) {
+// List returns all the proxies in the set as a slice.
+func (s *Set) List() (proxies []Proxy) {
 	s.m.Lock()
-	proxies = s.proxies
+
+	keys := make([]Proxy, 0, len(s.proxies))
+	for k := range s.proxies {
+		keys = append(keys, k)
+	}
+
 	s.m.Unlock()
 
-	return proxies
+	return keys
+}
+
+// All returns all the proxies in the set as a map.
+func (s *Set) All() (proxies map[Proxy]bool) {
+	s.m.Lock()
+	defer s.m.Unlock()
+
+	return s.proxies
 }
 
 // Remove removes a proxy from a set.
@@ -76,16 +87,36 @@ func (s *Set) All() (proxies []Proxy) {
 func (s *Set) Remove(proxy Proxy) {
 	s.m.Lock()
 
-	for i, p := range s.proxies {
-		if p.URL.String() == proxy.URL.String() {
-			s.proxies[len(s.proxies)-1], s.proxies[i] = s.proxies[i], s.proxies[len(s.proxies)-1]
-			s.proxies = s.proxies[:len(s.proxies)-1]
-			break
+	delete(s.proxies, proxy)
+	s.m.Unlock()
+}
+
+// Random gets a random proxy from the set.
+func (s *Set) Random() Proxy {
+	s.m.Lock()
+	defer s.m.Unlock()
+
+	for k := range s.proxies {
+		return k
+	}
+
+	return Proxy{}
+}
+
+// FromCountries gets a random proxy from the specified countries.
+func (s *Set) FromCountries(countries []string) Proxy {
+	s.m.Lock()
+	defer s.m.Unlock()
+
+	for k := range s.proxies {
+		for _, c := range countries {
+			if k.Country == c {
+				return k
+			}
 		}
 	}
 
-	delete(s.membership, proxy.URL.Host)
-	s.m.Unlock()
+	return Proxy{}
 }
 
 // Length gets the amount of proxies being stores.
@@ -100,6 +131,6 @@ func (s *Set) Length() int {
 // NewSet creates a new set.
 func NewSet() *Set {
 	return &Set{
-		membership: make(map[string]bool),
+		proxies: make(map[Proxy]bool),
 	}
 }
