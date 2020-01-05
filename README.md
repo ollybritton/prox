@@ -234,10 +234,6 @@ for {
   ```go
   pool.Filter(prox.FilterProxyTypes("HTTP", "SOCKS4", "SOCKS5"))
   ```
-
-* Data races
-  
-  You get some warnings when you run `go test -race`
   
 ## Legal
 > This product includes GeoLite2 data created by MaxMind, available from [https://www.maxmind.com](https://www.maxmind.com).
