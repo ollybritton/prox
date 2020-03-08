@@ -51,6 +51,7 @@ func proxyScrapeWorker(id int, client *http.Client, jobs chan [2]string, results
 			proxy, err := newProxy(ip, "ProxyScrape", country)
 			if err != nil {
 				logger.Debugf("providers (ProxyScrape): cannot create new proxy: %v", err)
+				continue
 			}
 
 			results <- proxy
@@ -62,7 +63,7 @@ func proxyScrapeWorker(id int, client *http.Client, jobs chan [2]string, results
 // ProxyScrape returns the proxies that can be found on the site https://proxyscrape.com.
 func ProxyScrape(proxies *Set, timeout time.Duration) ([]Proxy, error) {
 	logger.Debug("providers: Fetching proxies from provider ProxyScrape")
-	client := &http.Client{}
+	client := &http.Client{Timeout: timeout}
 
 	var links = map[string]string{
 		"http":   "https://api.proxyscrape.com/?request=getproxies&proxytype=all&timeout=10000&country=all&ssl=no&anonymity=all",

@@ -15,6 +15,7 @@ import (
 var Providers = map[string]providers.Provider{
 	"FreeProxyLists": providers.FreeProxyLists,
 	"ProxyScrape":    providers.ProxyScrape,
+	"GetProxyList":   providers.GetProxyList,
 	"Static":         providers.Static,
 }
 

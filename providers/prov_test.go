@@ -23,5 +23,6 @@ func testProvider(name string, provider providers.Provider) func(*testing.T) {
 func TestProviders(t *testing.T) {
 	t.Run("FreeProxyLists", testProvider("FreeProxyLists", providers.FreeProxyLists))
 	t.Run("ProxyScrape", testProvider("ProxyScrape", providers.ProxyScrape))
+	t.Run("GetProxyList", testProvider("GetProxyList", providers.GetProxyList))
 	t.Run("Static", testProvider("Static", providers.Static))
 }
