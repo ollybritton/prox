@@ -261,7 +261,11 @@ func (pool *ComplexPool) NewFromCountries(countries []string) (Proxy, error) {
 		}
 	}
 
-	rawProxy := pool.Unused.FromCountries(countries)
+	rawProxy, err := pool.Unused.FromCountries(countries)
+	if err != nil {
+		return Proxy{}, fmt.Errorf("prox (%p): cannot get proxy from desired country: %v", pool, err)
+	}
+
 	pool.Unused.Remove(rawProxy)
 
 	return *CastProxy(rawProxy), nil

@@ -1,6 +1,7 @@
 package providers
 
 import (
+	"fmt"
 	"net/url"
 	"sync"
 	"time"
@@ -104,19 +105,19 @@ func (s *Set) Random() Proxy {
 }
 
 // FromCountries gets a random proxy from the specified countries.
-func (s *Set) FromCountries(countries []string) Proxy {
+func (s *Set) FromCountries(countries []string) (Proxy, error) {
 	s.m.Lock()
 	defer s.m.Unlock()
 
 	for k := range s.proxies {
 		for _, c := range countries {
 			if k.Country == c {
-				return k
+				return k, nil
 			}
 		}
 	}
 
-	return Proxy{}
+	return Proxy{}, fmt.Errorf("couldn't find proxy from country")
 }
 
 // Length gets the amount of proxies being stores.
