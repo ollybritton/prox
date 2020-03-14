@@ -16,8 +16,12 @@ import (
 )
 
 var (
-	TestProviders  = []string{"FreeProxyLists", "ProxyScrape"}
-	DummyProviders = []string{"DummyProvider", "DummyProviderEmpty", "DummyProviderError"}
+	DummyProvider      = prox.Provider{"DummyProvider", providers.DummyProvider}
+	DummyProviderEmpty = prox.Provider{"DummyProviderEmpty", providers.DummyProviderEmpty}
+	DummyProviderError = prox.Provider{"DummyProviderError", providers.DummyProviderError}
+
+	TestProviders  = []prox.Provider{prox.FreeProxyLists, prox.ProxyScrape}
+	DummyProviders = []prox.Provider{DummyProvider, DummyProviderEmpty, DummyProviderError}
 )
 
 func init() {
@@ -28,9 +32,9 @@ func init() {
 	prox.InitLog(logger)
 
 	// add the dummy providers to the provider map
-	prox.Providers["DummyProvider"] = providers.DummyProvider
-	prox.Providers["DummyProviderEmpty"] = providers.DummyProviderEmpty
-	prox.Providers["DummyProviderError"] = providers.DummyProviderError
+	prox.Providers["DummyProvider"] = prox.Provider{"DummyProvider", providers.DummyProvider}
+	prox.Providers["DummyProviderEmpty"] = prox.Provider{"DummyProviderEmpty", providers.DummyProviderEmpty}
+	prox.Providers["DummyProviderError"] = prox.Provider{"DummyProviderError", providers.DummyProviderError}
 }
 
 // TestComplexPoolCreation tests that the function NewComplexPool works.
@@ -75,7 +79,7 @@ func TestComplexPoolInvalidProviders(t *testing.T) {
 	}()
 
 	prox.NewComplexPool(
-		prox.UseProviders("HGUIExampleBadProvideraAOIJD"),
+		prox.UseProviders(prox.GetProvider("HGUIExampleBadProvideraAOIJD")),
 	)
 
 }
@@ -83,7 +87,7 @@ func TestComplexPoolInvalidProviders(t *testing.T) {
 // TestComplexPoolEmptyProvider tests that using a provider which returns no proxies causes an error.
 func TestComplexPoolEmptyProvider(t *testing.T) {
 	pool := prox.NewComplexPool(
-		prox.UseProvider("DummyProviderEmpty"),
+		prox.UseProvider(DummyProviderEmpty),
 	)
 
 	err := pool.Load()
@@ -94,7 +98,7 @@ func TestComplexPoolEmptyProvider(t *testing.T) {
 // returned by the pool itself.
 func TestComplexPoolErrorProvider(t *testing.T) {
 	pool := prox.NewComplexPool(
-		prox.UseProvider("DummyProviderError"),
+		prox.UseProvider(DummyProviderError),
 	)
 
 	err := pool.Load()
@@ -104,8 +108,8 @@ func TestComplexPoolErrorProvider(t *testing.T) {
 // TestComplexPoolFallbackProviders tests that if the initial provider fails then the backup providers are used.
 func TestComplexPoolFallbackProviders(t *testing.T) {
 	pool := prox.NewComplexPool(
-		prox.UseProvider("DummyProviderEmpty"),
-		prox.UseFallbackProvider("DummyProvider"),
+		prox.UseProvider(DummyProviderEmpty),
+		prox.UseFallbackProvider(DummyProvider),
 	)
 
 	err := pool.Load()
@@ -115,7 +119,7 @@ func TestComplexPoolFallbackProviders(t *testing.T) {
 // TestComplexPoolCache tests that a pool will use the cached proxies if the normal providers do not work.
 func TestComplexPoolCache(t *testing.T) {
 	initialPool := prox.NewComplexPool(
-		prox.UseProvider("DummyProvider"),
+		prox.UseProvider(DummyProvider),
 	)
 
 	err := initialPool.Load()
@@ -123,7 +127,7 @@ func TestComplexPoolCache(t *testing.T) {
 
 	pool := prox.NewComplexPool(
 		prox.OptionFallbackToCached(true),
-		prox.UseProvider("DummyProviderEmpty"),
+		prox.UseProvider(DummyProviderEmpty),
 	)
 
 	// Load the cache from the initial pool into the new pool.
@@ -141,7 +145,7 @@ func TestComplexPoolCache(t *testing.T) {
 func TestComplexPoolAutomaticReload(t *testing.T) {
 	pool := prox.NewComplexPool(
 		prox.OptionReloadWhenEmpty(true),
-		prox.UseProvider("DummyProvider"),
+		prox.UseProvider(DummyProvider),
 	)
 
 	_, err := pool.New()
@@ -150,7 +154,7 @@ func TestComplexPoolAutomaticReload(t *testing.T) {
 
 	pool = prox.NewComplexPool(
 		prox.OptionReloadWhenEmpty(true),
-		prox.UseProvider("DummyProvider"),
+		prox.UseProvider(DummyProvider),
 	)
 
 	_, err = pool.Random()
@@ -161,7 +165,7 @@ func TestComplexPoolAutomaticReload(t *testing.T) {
 // TestComplexPoolNew tests the .New method of the pool.
 func TestComplexPoolNew(t *testing.T) {
 	pool := prox.NewComplexPool(
-		prox.UseProvider("DummyProvider"),
+		prox.UseProvider(DummyProvider),
 	)
 
 	err := pool.Load()
@@ -181,7 +185,7 @@ func TestComplexPoolNew(t *testing.T) {
 // TestComplexPoolRandom tests the .Random method of the pool.
 func TestComplexPoolRandom(t *testing.T) {
 	pool := prox.NewComplexPool(
-		prox.UseProvider("DummyProvider"),
+		prox.UseProvider(DummyProvider),
 	)
 
 	err := pool.Load()
@@ -204,8 +208,8 @@ func TestComplexPoolEquivalentFilters(t *testing.T) {
 	logger := logrus.New()
 	logger.SetLevel(logrus.InfoLevel)
 
-	pool1 := prox.NewComplexPool(prox.UseProvider("FreeProxyLists"))
-	pool2 := prox.NewComplexPool(prox.UseProvider("FreeProxyLists"))
+	pool1 := prox.NewComplexPool(prox.UseProvider(prox.FreeProxyLists))
+	pool2 := prox.NewComplexPool(prox.UseProvider(prox.FreeProxyLists))
 
 	t.Log("Loading proxy pool...")
 	pool1.Load()
@@ -238,7 +242,7 @@ func TestComplexPoolEquivalentFilters(t *testing.T) {
 // proxies won't increase in the background. This is because it would mess up things like
 // filtering.
 func TestComplexPoolIsStatic(t *testing.T) {
-	pool := prox.NewComplexPool(prox.UseProvider("FreeProxyLists"))
+	pool := prox.NewComplexPool(prox.UseProvider(prox.FreeProxyLists))
 
 	t.Log("Loading proxy pool...")
 

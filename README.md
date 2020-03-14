@@ -61,12 +61,12 @@ Pools are simply a collection of [providers](#providers) combined together that 
 #### Simple Pool
 To create a new `SimplePool`, use the `NewSimplePool` function supplied with a name or a list of names of providers.
 ```go
-pool := prox.NewSimplePool("FreeProxyLists")
+pool := prox.NewSimplePool(prox.FreeProxyLists)
 ```
 
 You then need to load the pool:
 ```go
-pool := prox.NewSimplePool("FreeProxyLists")
+pool := prox.NewSimplePool(prox.FreeProxyLists)
 if err := pool.Load(); err != nil {
     panic(err)
 }
@@ -114,10 +114,10 @@ A `ComplexPool` can be created with the `NewComplexPool` function or `NewPool` f
 
 ```go
 pool := prox.NewPool(
-    prox.UseProvider("FreeProxyLists"), // Use a provider, or...
-    prox.UseProviders("FreeProxyLists", "ProxyScrape") // a list of providers
+    prox.UseProvider(prox.FreeProxyLists), // Use a provider, or...
+    prox.UseProviders(prox.FreeProxyLists, prox.ProxyScrape) // a list of providers
 
-    prox.UseFallbackProviders("Static"), // Provider to "fall back" on if the primary providers do not work or return an error.
+    prox.UseFallbackProviders(prox.Static), // Provider to "fall back" on if the primary providers do not work or return an error.
     prox.OptionFallbackToBackupProviders(true), // Toggle this option. By default it is true.
 
     prox.OptionFallbackToCached(true), // Keep a backup of the previously loaded proxies. If the providers can't be accessed, use the cached list of proxies instead. Defaults to false.

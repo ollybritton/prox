@@ -16,7 +16,7 @@ func TestSimplePoolIsStatic(t *testing.T) {
 	logger := logrus.New()
 	logger.SetLevel(logrus.InfoLevel)
 
-	pool := prox.NewSimplePool("FreeProxyLists")
+	pool := prox.NewSimplePool(prox.FreeProxyLists)
 
 	t.Log("Loading proxy pool...")
 	pool.Load()
@@ -38,8 +38,8 @@ func TestSimplePoolEquivialentFilters(t *testing.T) {
 	logger := logrus.New()
 	logger.SetLevel(logrus.InfoLevel)
 
-	pool1 := prox.NewSimplePool("FreeProxyLists")
-	pool2 := prox.NewSimplePool("FreeProxyLists")
+	pool1 := prox.NewSimplePool(prox.FreeProxyLists)
+	pool2 := prox.NewSimplePool(prox.FreeProxyLists)
 
 	t.Log("Loading proxy pool...")
 	err := pool1.Load()

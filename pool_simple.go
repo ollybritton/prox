@@ -110,15 +110,11 @@ func (pool *SimplePool) Filter(filters ...Filter) {
 }
 
 // NewSimplePool returns a new a new SimplePool struct.
-func NewSimplePool(providerNames ...string) *SimplePool {
-	for _, providerName := range providerNames {
-		panicValidProvider(providerName)
-	}
-
-	provider := MultiProvider(providerNames...)
+func NewSimplePool(givenProviders ...Provider) *SimplePool {
+	provider := MultiProvider(givenProviders...)
 
 	return &SimplePool{
-		provider: provider,
+		provider: provider.InternalProvider,
 		timeout:  time.Second * 15,
 
 		All:    providers.NewSet(),

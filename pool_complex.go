@@ -13,8 +13,8 @@ import (
 // ComplexPool is an implementation of a pool with lots of extra settings, including filtering
 // and ensuring the pool always has proxies to provide.
 type ComplexPool struct {
-	providers         []providers.Provider
-	fallbackProviders []providers.Provider
+	providers         []Provider
+	fallbackProviders []Provider
 	timeout           time.Duration
 
 	filters []Filter
@@ -75,7 +75,7 @@ func (pool *ComplexPool) Fetch() error {
 				}
 			}
 
-		}(provider)
+		}(provider.InternalProvider)
 
 	}
 
@@ -120,7 +120,7 @@ func (pool *ComplexPool) FetchFallback() error {
 				}
 			}
 
-		}(provider)
+		}(provider.InternalProvider)
 
 	}
 
@@ -321,16 +321,17 @@ type Option func(*ComplexPool) error
 
 // UseProviders will adds providers to the pool. If any of the provider names is invalid, it will
 // panic.
-func UseProviders(providerNames ...string) Option {
+func UseProviders(givenProviders ...Provider) Option {
 	return func(p *ComplexPool) error {
-		for _, providerName := range providerNames {
-			provider := Providers[providerName]
+		providerNames := make([]string, len(givenProviders))
 
-			if provider == nil {
-				logger.Panicf("prox (%p): invalid provider '%v'", p, providerName)
+		for _, provider := range givenProviders {
+			if provider.InternalProvider == nil {
+				logger.Panicf("prox (%p): invalid provider '%v'", p, provider.Name)
 			}
 
 			p.providers = append(p.providers, provider)
+			providerNames = append(providerNames, provider.Name)
 		}
 
 		logger.Debugf("prox (%p): using providers %v", p, providerNames)
@@ -340,22 +341,23 @@ func UseProviders(providerNames ...string) Option {
 }
 
 // UseProvider will add a provider to pool. If the provider name is invalid, it will panic.
-func UseProvider(providerName string) Option {
-	return UseProviders(providerName)
+func UseProvider(provider Provider) Option {
+	return UseProviders(provider)
 }
 
 // UseFallbackProviders adds providers that will only be used if the other providers do not work.
 // If any of the provider names are invalid, it will panic.
-func UseFallbackProviders(providerNames ...string) Option {
+func UseFallbackProviders(givenProviders ...Provider) Option {
 	return func(p *ComplexPool) error {
-		for _, providerName := range providerNames {
-			provider := Providers[providerName]
+		providerNames := make([]string, len(givenProviders))
 
-			if provider == nil {
-				logger.Panicf("prox (%p): invalid fallback provider '%v'", p, providerName)
+		for _, provider := range givenProviders {
+			if provider.InternalProvider == nil {
+				logger.Panicf("prox (%p): invalid fallback provider '%v'", p, provider.Name)
 			}
 
-			p.fallbackProviders = append(p.fallbackProviders, provider)
+			p.providers = append(p.providers, provider)
+			providerNames = append(providerNames, provider.Name)
 		}
 
 		logger.Debugf("prox (%p): using fallback providers %v", p, providerNames)
@@ -366,8 +368,8 @@ func UseFallbackProviders(providerNames ...string) Option {
 
 // UseFallbackProvider adds a provider that will only be used if the other providers fail.
 // If the provider name is invalid, it will panic.
-func UseFallbackProvider(providerName string) Option {
-	return UseFallbackProviders(providerName)
+func UseFallbackProvider(provider Provider) Option {
+	return UseFallbackProviders(provider)
 }
 
 // OptionReloadWhenEmpty sets the option to attempt to load new proxies into the pool if there are no proxies left in

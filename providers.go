@@ -10,47 +10,80 @@ import (
 	"github.com/ollybritton/prox/providers"
 )
 
+// Provider is a wrapper around the providers.Provider type, giving information about the provider along with the actual
+// provider function itself.
+type Provider struct {
+	Name             string
+	InternalProvider providers.Provider
+}
+
+// FreeProxyLists defines the 'FreeProxyLists' provider.
+var FreeProxyLists = Provider{"FreeProxyLists", providers.FreeProxyLists}
+
+// ProxyScrape defines the 'ProxyScrape' provider.
+var ProxyScrape = Provider{"ProxyScrape", providers.ProxyScrape}
+
+// GetProxyList defines the 'GetProxyList' provider.
+var GetProxyList = Provider{"GetProxyList", providers.GetProxyList}
+
+// Static defines the 'Static' provider.
+var Static = Provider{"Static", providers.Static}
+
 // Providers is a global variable which allows translation between the names of providers
 // and the provider functions themselves.
-var Providers = map[string]providers.Provider{
-	"FreeProxyLists": providers.FreeProxyLists,
-	"ProxyScrape":    providers.ProxyScrape,
-	"GetProxyList":   providers.GetProxyList,
-	"Static":         providers.Static,
+var Providers = map[string]Provider{
+	"FreeProxyLists": FreeProxyLists,
+	"ProxyScrape":    ProxyScrape,
+	"GetProxyList":   GetProxyList,
+	"Static":         Static,
 }
 
 // panicValidProvider will panic if the string specified does not correspond to a valid provider.
 func panicValidProvider(providerName string) {
-	if Providers[providerName] == nil {
+	if Providers[providerName].InternalProvider == nil {
 		panic(errors.New("invalid provider type " + providerName))
 	}
 }
 
 // GetProvider gets the provider by name.
-func GetProvider(providerName string) providers.Provider {
+func GetProvider(providerName string) Provider {
 	panicValidProvider(providerName)
 	return Providers[providerName]
 }
 
-// MultiProvider creates a new hybrid-provider from a set of existing ones.
-// It will fetch all the proxies from all providers asynchronously.
-func MultiProvider(providerNames ...string) providers.Provider {
+// GetProviders gets multiple providers by name.
+func GetProviders(providerNames ...string) []Provider {
+	results := []Provider{}
+
 	for _, providerName := range providerNames {
 		panicValidProvider(providerName)
+		results = append(results, Providers[providerName])
 	}
 
-	name := fmt.Sprintf("Multi{%v}", strings.Join(providerNames, "|"))
+	return results
+}
 
-	return func(proxies *providers.Set, timeout time.Duration) ([]providers.Proxy, error) {
+// MultiProvider creates a new hybrid-provider from a set of existing ones.
+// It will fetch all the proxies from all providers asynchronously.
+func MultiProvider(givenProviders ...Provider) Provider {
+	names := []string{}
+
+	for _, provider := range givenProviders {
+		names = append(names, provider.Name)
+	}
+
+	name := fmt.Sprintf("Multi{%v}", strings.Join(names, "|"))
+
+	return Provider{name, func(proxies *providers.Set, timeout time.Duration) ([]providers.Proxy, error) {
 		var wg = &sync.WaitGroup{}
 
-		for _, providerName := range providerNames {
+		for _, provider := range givenProviders {
 			wg.Add(1)
 
 			go func(provider providers.Provider) {
 				provider(proxies, timeout)
 				wg.Done()
-			}(Providers[providerName])
+			}(provider.InternalProvider)
 		}
 
 		waitTimeout(wg, timeout)
@@ -61,7 +94,7 @@ func MultiProvider(providerNames ...string) providers.Provider {
 		}
 
 		return ps, nil
-	}
+	}}
 }
 
 // FreezeProvider will gather proxies from the provider given one last time
@@ -69,7 +102,7 @@ func MultiProvider(providerNames ...string) providers.Provider {
 func FreezeProvider(providerName string, timeout time.Duration) providers.Provider {
 	panicValidProvider(providerName)
 
-	ps, err := Providers[providerName](providers.NewSet(), timeout)
+	ps, err := Providers[providerName].InternalProvider(providers.NewSet(), timeout)
 	return func(proxies *providers.Set, timeout time.Duration) ([]providers.Proxy, error) {
 		if err != nil {
 			return []providers.Proxy{}, err

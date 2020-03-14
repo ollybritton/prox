@@ -69,7 +69,7 @@ var findCmd = &cobra.Command{
 		}
 
 		pool := prox.NewComplexPool(
-			prox.UseProviders(providers...),
+			prox.UseProviders(prox.GetProviders(providers...)...),
 			prox.OptionReloadWhenEmpty(true),
 
 			prox.OptionAddFilters(

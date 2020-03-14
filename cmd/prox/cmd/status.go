@@ -23,14 +23,14 @@ var errInvalidProvider = errors.New("invalid provider")
 func CheckStatus(providerName string) (active bool, amount int, err error) {
 	provider := prox.Providers[providerName]
 
-	if provider == nil {
+	if provider.InternalProvider == nil {
 		return false, 0, errInvalidProvider
 	}
 
 	set := providers.NewSet()
 	timeout := 10 * time.Second
 
-	ps, err := provider(set, timeout)
+	ps, err := provider.InternalProvider(set, timeout)
 	if err != nil {
 		return false, 0, err
 	}
