@@ -54,32 +54,24 @@ func (pool *ComplexPool) SetTimeout(timeout time.Duration) {
 func (pool *ComplexPool) Fetch() error {
 	logger.Debugf("prox (%p): attempting to fetch proxies from providers", pool)
 	collector := providers.NewSet()
-	wg := &sync.WaitGroup{}
 
 	for _, provider := range pool.providers {
-		wg.Add(1)
-		go func(provider providers.Provider) {
-			defer wg.Done()
 
-			ps, err := provider(collector, pool.timeout)
-			if err != nil {
-				log.Println(err)
+		ps, err := provider.InternalProvider(collector, pool.timeout)
+		if err != nil {
+			log.Println(err)
 
+		}
+
+		for _, p := range ps {
+			pool.All.Add(p)
+
+			if !pool.Unused.In(p) {
+				pool.Unused.Add(p)
 			}
-
-			for _, p := range ps {
-				pool.All.Add(p)
-
-				if !pool.Unused.In(p) {
-					pool.Unused.Add(p)
-				}
-			}
-
-		}(provider.InternalProvider)
+		}
 
 	}
-
-	wg.Wait()
 
 	if len(collector.All()) == 0 {
 		logger.Errorf("prox (%p): no proxies could be loaded from providers", pool)
@@ -102,25 +94,20 @@ func (pool *ComplexPool) FetchFallback() error {
 	wg := &sync.WaitGroup{}
 
 	for _, provider := range pool.fallbackProviders {
-		wg.Add(1)
-		go func(provider providers.Provider) {
-			defer wg.Done()
 
-			ps, err := provider(collector, pool.timeout)
-			if err != nil {
-				log.Println(err)
+		ps, err := provider.InternalProvider(collector, pool.timeout)
+		if err != nil {
+			log.Println(err)
 
+		}
+
+		for _, p := range ps {
+			pool.All.Add(p)
+
+			if !pool.Unused.In(p) {
+				pool.Unused.Add(p)
 			}
-
-			for _, p := range ps {
-				pool.All.Add(p)
-
-				if !pool.Unused.In(p) {
-					pool.Unused.Add(p)
-				}
-			}
-
-		}(provider.InternalProvider)
+		}
 
 	}
 

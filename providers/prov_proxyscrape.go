@@ -72,10 +72,10 @@ func ProxyScrape(proxies *Set, timeout time.Duration) ([]Proxy, error) {
 		"socks5": "https://api.proxyscrape.com/?request=getproxies&proxytype=socks5&timeout=10000&country=all",
 	}
 
-	jobs := make(chan [2]string, 1000)
-	results := make(chan Proxy, 1000)
+	jobs := make(chan [2]string, 100)
+	results := make(chan Proxy, 100)
 
-	for i := 0; i < 50; i++ {
+	for i := 0; i < 25; i++ {
 		go proxyScrapeWorker(i, client, jobs, results)
 	}
 

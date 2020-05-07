@@ -125,8 +125,8 @@ func FreeProxyLists(proxies *Set, timeout time.Duration) ([]Proxy, error) {
 		"http://freeproxylists.com/https.html",
 	}
 
-	jobs := make(chan string, 1000)
-	results := make(chan Proxy, 1000)
+	jobs := make(chan string, 100)
+	results := make(chan Proxy, 100)
 
 	for _, list := range lists {
 		logger.Debugf("providers (FreeProxyLists): Pulling proxy lists from site %v", list)

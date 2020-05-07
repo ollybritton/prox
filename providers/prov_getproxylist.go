@@ -52,7 +52,7 @@ func GetProxyList(proxies *Set, timeout time.Duration) ([]Proxy, error) {
 	logger.Debug("providers: Fetching proxies from provider GetProxyList")
 	client := &http.Client{}
 
-	results := make(chan Proxy, 1000)
+	results := make(chan Proxy, 100)
 
 	for i := 0; i < 100; i++ {
 		go getProxyListWorker(i, 50*50, client, results)
