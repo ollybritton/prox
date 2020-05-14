@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/ollybritton/prox2/sources"
+	"github.com/ollybritton/prox/sources"
 	"golang.org/x/net/proxy"
 
 	// Needed to augment net/proxy to support socks4

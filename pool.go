@@ -3,7 +3,7 @@ package prox
 import (
 	"fmt"
 
-	"github.com/ollybritton/prox2/sources"
+	"github.com/ollybritton/prox/sources"
 )
 
 // SourceOption is a coupling of a source and an option. It is used when passing instructions to a pool.
