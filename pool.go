@@ -2,6 +2,9 @@ package prox
 
 import (
 	"fmt"
+	"time"
+
+	"github.com/sirupsen/logrus"
 
 	"github.com/ollybritton/prox/sources"
 )
@@ -24,12 +27,13 @@ type Pool struct {
 }
 
 // Fetch gets fresh proxies using the sourceOptions specified.
-func (p *Pool) Fetch() error {
+// Delay specifies the delay between making each request, to keep inside rate limits.
+func (p *Pool) Fetch(delay time.Duration) error {
 	p.cacheAll = p.all.Clone()
 	p.cacheUnused = p.unused.Clone()
 
 	for _, group := range p.sourceOptions {
-		fmt.Println(group)
+		logrus.Infof("querying source %#v for %v proxies...", group.Source, group.Options)
 
 		proxies, err := group.Source.Query(group.Options)
 		if err != nil {
@@ -46,6 +50,8 @@ func (p *Pool) Fetch() error {
 				p.unused.Add(proxy)
 			}
 		}
+
+		time.Sleep(delay)
 	}
 
 	return nil
