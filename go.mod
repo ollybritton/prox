@@ -25,6 +25,7 @@ require (
 	github.com/temoto/robotstxt v1.1.1 // indirect
 	golang.org/x/net v0.0.0-20200421231249-e086a090c8fd
 	google.golang.org/appengine v1.6.6 // indirect
+	github.com/ollybritton/prox/providers v0.0.0-20200507110232-3f3e89b713ee
 )
 
-replace gitthub.com/ollybritton/prox/providers => ./providers
+replace github.com/ollybritton/prox/providers => ./providers
