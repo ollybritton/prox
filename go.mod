@@ -26,3 +26,5 @@ require (
 	golang.org/x/net v0.0.0-20200421231249-e086a090c8fd
 	google.golang.org/appengine v1.6.6 // indirect
 )
+
+replace gitthub.com/ollybritton/prox/providers => ./providers
