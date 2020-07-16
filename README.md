@@ -1,4 +1,9 @@
 # Prox
+
+> ### DEPRECATED
+> Turns out the library has some significant memory issues and you should likely not use it in your project.
+> A newer, faster and more reliable version of this library is currently being developed, but it is closed source.
+
 Prox is a simple Go package for locating open proxy servers. It works by congregating proxies from several different providers on the internet and allows access to them using a simple API. It is the successor to my previous package, [proxyfinder](https://github.com/ollybritton/proxyfinder).
 
 [![GoDoc](https://godoc.org/github.com/ollybritton/prox?status.svg)](https://godoc.org/github.com/ollybritton/prox)
